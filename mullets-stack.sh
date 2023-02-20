@@ -18,7 +18,7 @@ yarn add concurrently
 cat > package.json << EOL
 {
   "scripts": {
-    "dev": "concurrently \"cd ./server && yarn dev\" \"cd ./client && yarn start\""
+    "dev": "concurrently \"cd ./server && yarn start\" \"cd ./client && yarn dev\""
   }
 }
 EOL
