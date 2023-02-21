@@ -22,7 +22,7 @@ This will install the latest versions of:
 
 I'm using Knex for working with Postgres, you may not like that but it's here for now. I haven't verified TS Config is correct, just yet, but soon.
 
-There's no .gitignore / .eslint / .prettierrc / semantic versioning actions yet. Definitely coming soon.
+There's no .eslint / semantic versioning actions yet. Definitely coming soon.
 
 
 ## Installation
