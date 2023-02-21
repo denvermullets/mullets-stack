@@ -6,21 +6,63 @@ project_name=$1
 # create the folder for everything
 mkdir "$project_name"
 cd "$project_name"
+git init
 
 # create the frontend
 yarn create vite client --template react-ts
 
 # main folder needs to add concurrently
 yarn add concurrently
+yarn add -D husky
+yarn husky install
+npm pkg set scripts.prepare="husky install"
+yarn husky add .husky/pre-commit "yarn test"
 
 # add the following script to the package.json file
 # you will run this to run both sides of the app
-cat > package.json << EOL
-{
-  "scripts": {
-    "dev": "concurrently \"cd ./server && yarn start\" \"cd ./client && yarn dev\""
-  }
-}
+jq '.scripts = {
+    "dev": "concurrently \"cd ./server && yarn start\" \"cd ./client && yarn dev\"",
+    "tscheck:client": "tsc -p ./client/tsconfig.json",
+    "tscheck:server": "tsc -p ./server/tsconfig.json",
+    "test": "yarn tscheck:client && yarn tscheck:server"
+}' package.json > package.json.tmp && mv package.json.tmp package.json
+
+cat > .gitignore <<EOL
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+node_modules
+.DS_Store
+error_log
+*.log
+.cache
+dist
+build
+.env
+.vscode
+.idea
+dump.rdb
+
+/cypress/videos
 EOL
 
 # create the server
@@ -40,6 +82,44 @@ jq '.scripts = {
     "db:migrate": "yarn knex migrate:latest src/database/knexfile.ts",
     "db:rollback": "yarn knex migrate:rollback src/database/knexfile.ts"
 }' package.json > package.json.tmp && mv package.json.tmp package.json
+
+cat > .gitignore <<EOL
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+node_modules
+.DS_Store
+error_log
+*.log
+.cache
+dist
+build
+.env
+.vscode
+.idea
+dump.rdb
+
+/cypress/videos
+EOL
 
 mkdir src
 cd src
@@ -132,6 +212,44 @@ cd ..
 
 # react client stuff
 cd client
+
+cat > .gitignore <<EOL
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+node_modules
+.DS_Store
+error_log
+*.log
+.cache
+dist
+build
+.env
+.vscode
+.idea
+dump.rdb
+
+/cypress/videos
+EOL
 
 # install chakra deps if argument provided
 if [ $# -eq 2 ]; then
