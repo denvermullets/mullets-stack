@@ -1,296 +1,78 @@
 #!/bin/bash
 
-# take the first argument as the folder name
-project_name=$1
+# Define options
+options=("React w/Chakra UI, NodeJS, Express, Knex, and Postgres" "React with Chakra UI" "NodeJS API, with Express, Knex, and Postgres" "Electron app with Chakra UI")
 
-# create the folder for everything
-mkdir "$project_name"
-cd "$project_name"
-git init
+# Initialize selected option
+selected_option=0
 
-# create the frontend
-yarn create vite client --template react-ts
+# Set ANSI color codes
+normal="\033[0m"
+green="\033[0;32m"
 
-# main folder needs to add concurrently
-yarn add concurrently
-yarn add -D husky
-yarn husky install
-npm pkg set scripts.prepare="husky install"
-yarn husky add .husky/pre-commit "yarn test"
+# Clear screen and hide cursor
+tput clear
+tput civis
 
-# add the following script to the package.json file
-# you will run this to run both sides of the app
-jq '.scripts = {
-    "dev": "concurrently \"cd ./server && yarn start\" \"cd ./client && yarn dev\"",
-    "tscheck:client": "tsc -p ./client/tsconfig.json",
-    "tscheck:server": "tsc -p ./server/tsconfig.json",
-    "test": "yarn tscheck:client && yarn tscheck:server"
-}' package.json > package.json.tmp && mv package.json.tmp package.json
+# Display options and prompt user for selection
+while true; do
+  # Move cursor to top of screen
+  tput cup 0 0
 
-cat > .gitignore <<EOL
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+  # Output options
+  for i in "${!options[@]}"; do
+    if ((i == selected_option)); then
+      printf " ${green}> ${options[i]}${normal}\n"
+    else
+      printf "   %s\n" "${options[i]}"
+    fi
+  done
 
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-node_modules
-.DS_Store
-error_log
-*.log
-.cache
-dist
-build
-.env
-.vscode
-.idea
-dump.rdb
-
-/cypress/videos
-EOL
-
-# create the server
-mkdir server
-cd server
-yarn init -y
-yarn add express knex pg dotenv axios
-yarn add -D nodemon ts-node typescript @types/express @types/node
-yarn tsc --init
-
-# append the script to server package.json
-jq '.scripts = {
-    "build": "yarn install && tsc",
-    "start:prod": "yarn db:migrate && node build/index.js",
-    "start": "nodemon ./src/index.ts",
-    "knex": "./node_modules/.bin/knex --knexfile src/database/knexfile.ts",
-    "db:migrate": "yarn knex migrate:latest src/database/knexfile.ts",
-    "db:rollback": "yarn knex migrate:rollback src/database/knexfile.ts"
-}' package.json > package.json.tmp && mv package.json.tmp package.json
-
-cat > .gitignore <<EOL
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-node_modules
-.DS_Store
-error_log
-*.log
-.cache
-dist
-build
-.env
-.vscode
-.idea
-dump.rdb
-
-/cypress/videos
-EOL
-
-mkdir src
-cd src
-
-# Create the index.ts file
-echo "import express from \"express\";
-import { Request, Response } from \"express\";
-const PORT = 3000
-const app = express();
-
-app.get(\"/api/v1\", (req: Request, res: Response) => {
-  const response = { 'hi': 'this works' }
-  res.send(response);
-});
-
-app.listen(PORT, () => console.log(`start listening on port : ${PORT}`));" > index.ts
-
-# create database support files
-mkdir database
-cd database
-
-# db.ts
-echo "import knex from \"knex\";
-import configs from \"./knexfile\";
-
-const config = configs[process.env.DB_ENV || \"development\"];
-
-const db = knex(config);
-
-export default db;" > db.ts
-
-# knexfile.ts
-cat > knexfile.ts <<EOL
-// was unable to read .env since this was nested ?_?, unsure why that is
-const path = require("path");
-require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
-
-import { Knex } from "knex";
-
-const DB = process.env.DATABASE_URL;
-console.log("DB", DB);
-
-interface IKnexConfig {
-  [key: string]: Knex.Config;
-}
-
-const configs: IKnexConfig = {
-  development: {
-    client: "pg",
-    connection: DB,
-    debug: true,
-    migrations: {
-      directory: "./migrations",
-      tableName: "knex_migrations",
-    },
-    seeds: {
-      directory: "./seeds",
-    },
-  },
-
-  production: {
-    client: "pg",
-    connection: DB + "?ssl=true",
-    migrations: {
-      directory: "./migrations",
-      tableName: "knex_migrations",
-    },
-    pool: {
-      min: 0,
-      max: 7,
-      acquireTimeoutMillis: 300000,
-      createTimeoutMillis: 300000,
-      destroyTimeoutMillis: 50000,
-      idleTimeoutMillis: 300000,
-      reapIntervalMillis: 10000,
-      createRetryIntervalMillis: 2000,
-      propagateCreateError: false,
-    },
-    acquireConnectionTimeout: 600000,
-  },
-};
-
-export default configs;
-EOL
-
-cd ..
-cd ..
-cd ..
-
-# react client stuff
-cd client
-
-cat > .gitignore <<EOL
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-node_modules
-.DS_Store
-error_log
-*.log
-.cache
-dist
-build
-.env
-.vscode
-.idea
-dump.rdb
-
-/cypress/videos
-EOL
-
-# install chakra deps if argument provided
-if [ $# -eq 2 ]; then
-  second_arg=$2
-  echo "Second argument provided: $second_arg"
-  if [ "$second_arg" == "chakra" ]; then
-    yarn add @chakra-ui/react @emotion/react @emotion/styled framer-motion
-
-    cd src
-    cat > main.tsx << EOL
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
-import './index.css'
-import { ChakraProvider } from '@chakra-ui/react'
-
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
-    <ChakraProvider>
-      <App />
-    </ChakraProvider>
-  </React.StrictMode>,
-)
-EOL
-
-  cd ..
+  # Read user input
+  read -rsn1 input
+  if [[ $input == "" ]]; then
+    break
+  elif [[ $input == $'\x1b' ]]; then
+    read -rsn2 -t 1 input
+    if [[ $input == "[A" && $selected_option -gt 0 ]]; then
+      ((selected_option--))
+    elif [[ $input == "[B" && $selected_option -lt $(( ${#options[@]} - 1 )) ]]; then
+      ((selected_option++))
+    fi
   fi
-fi
+done
 
-# create vite.config.js in the client folder
-cat > vite.config.js << EOL
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+# Clear screen and show cursor
+tput clear
+tput cnorm
 
-export default defineConfig({
-  server: {
-    proxy: {
-      "/api/v1": "http://localhost:3000/",
-    },
-  },
-  plugins: [react()]
-})
-EOL
-
-yarn install
+# Execute selected option
+case $selected_option in
+  0)
+    # Express Server with Knex and Postgres
+    echo "Creating your stack of choice..."
+    read -p "Enter project name: " project_name
+    source mullets-stack-full.sh "$project_name"
+    ;;
+  1)
+    # React with Chakra UI
+    echo "Creating React with Chakra UI..."
+    # Insert command for creating a React app with Chakra UI here
+    ;;
+  2)
+    # NodeJS API
+    echo "Creating Node Server..."
+    # Insert command for creating an nodejs app here
+    ;;
+  3)
+    # Electron app with Chakra UI
+    echo "Creating Electron app with Chakra UI..."
+    read -p "Enter project name: " project_name
+    source mullets-stack-electron.sh "$project_name"
+    # Insert command for creating an Electron app with Chakra UI here
+    ;;
+  *)
+    # Invalid option
+    echo "Invalid option."
+    ;;
+esac
