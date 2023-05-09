@@ -23,6 +23,8 @@ This will install the latest versions of:
     - knex
         - includes some scripts to get you rolling w/migrations
 - Electron
+- husky
+  - it also adds a pre-commit check for TS
 
 ## Things to note
 
