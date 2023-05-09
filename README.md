@@ -1,7 +1,12 @@
 
 # Mullets-Stack
 
-This is a bash script to quickly setup a monorepo for quick ideation. Creates a monorepo containing both frontend and backend.
+This is a bash script to quickly setup a monorepo for quick ideation. Gives options for the following:
+
+- React w/Chakra UI, NodeJS, Express, Knex, and Postgres
+- React with Chakra UI (not completed yet but you can just use Vite w/a template)
+- NodeJS API, with Express, Knex, and Postgres
+- Electron app with Chakra UI
 
 This will install the latest versions of:
 
@@ -9,7 +14,7 @@ This will install the latest versions of:
     - Vite
     - Typescript
     - React (w/router-dom)
-    - Chakra (optional)
+    - Chakra (sorry, i love using it, easy to remove)
 - Server
     - Express
     - axios
@@ -17,6 +22,7 @@ This will install the latest versions of:
     - pg (postgresql)
     - knex
         - includes some scripts to get you rolling w/migrations
+- Electron
 
 ## Things to note
 
@@ -27,28 +33,23 @@ There's no .eslint / semantic versioning actions yet. Definitely coming soon.
 
 ## Installation
 
-Clone the repo down or just the `mullets-stack.sh`
+Clone the repo down
 
-The only pre-requisite installation is `jq`. It will let us append to an existing `package.json` file.
+The only pre-requisite installation is `jq` and `newt`. It will let us append to an existing `package.json` file and gives us some options for terminal use.
 
 ```bash
     brew install jq
+    brew install newt
 ```
 
 Once the script is downloaded, move it to a folder and run the script. It will create a new folder containing both Client and Server folders.
 
-Give permission for the bash script to execute on your machine
+Give permission for the bash script to execute on your machine. Execute from where the scripts are downloaded to.
 ```bash
-  chmod +x mullets-stack.sh
+  chmod -R +x *.sh
 ```
 
 Execute script
 ```bash
-  ./mullets-stack.sh project_name
-```
-
-If you'd like to install Chakra UI as well, you can add it
-
-```bash
-  ./mullets-stack.sh project_name chakra
+  ./mullets-stack.sh
 ```
