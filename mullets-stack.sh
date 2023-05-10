@@ -11,7 +11,7 @@ SCRIPT_DIR=$(dirname "$SCRIPT_FILE")
 export MAIN_SCRIPT_DIR="$SCRIPT_DIR"
 
 # Define options
-options=("React w/Chakra UI, NodeJS, Express, Knex, and Postgres" "React with Chakra UI" "NodeJS API, with Express, Knex, and Postgres" "Electron app with Chakra UI")
+options=("React w/Chakra UI, NodeJS, Express, Knex, and Postgres" "React with Chakra UI" "NodeJS API, with Express, Knex, and Postgres" "Electron, Vite, and Chakra UI")
 
 # Initialize selected option
 selected_option=0

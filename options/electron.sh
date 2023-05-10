@@ -9,15 +9,10 @@ fi
 # Get the directory containing this script
 script_dir=$(dirname "$0")
 
-mkdir $1
+# create electron app, create folders and add dependencies
+yarn create @quick-start/electron $1 --template react-ts
 cd $1
-git init
-
-# yarn init -y
-yarn add electron electron-builder react react-dom vite typescript @chakra-ui/react @emotion/react @emotion/styled socket.io-client -D
-yarn add concurrently wait-on
-yarn tsc --init
-
+yarn add @chakra-ui/react @emotion/react @emotion/styled framer-motion
 yarn add husky -D
 yarn husky install
 npm pkg set scripts.prepare="husky install"
@@ -26,169 +21,94 @@ if [ ! -d ".husky" ]; then
   mkdir .husky
 fi
 yarn husky add .husky/pre-commit "yarn test"
+mkdir src/renderer/src/theme
+mkdir src/renderer/src/theme/components
+source "$MAIN_SCRIPT_DIR/options/gitignore.sh"
 
-echo "import { defineConfig } from 'vite';
+# create theme files
+echo "import React from 'react'
+import ReactDOM from 'react-dom/client'
+import customTheme from './theme'
+import './assets/index.css'
+import App from './App'
+import { ChakraProvider } from '@chakra-ui/react'
 
-export default defineConfig({
-  build: {
-    outDir: 'dist',
-    emptyOutDir: true,
-    sourcemap: true,
-    target: 'es2019',
-    minify: true,
-    rollupOptions: {
-      input: 'src/index.tsx',
-      output: {
-        format: 'iife',
-        entryFileNames: '[name].[hash].js',
-        assetFileNames: '[name].[hash].[ext]',
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+  <React.StrictMode>
+    <ChakraProvider theme={customTheme}>
+      <App />
+    </ChakraProvider>
+  </React.StrictMode>
+)" > src/renderer/src/main.tsx
+
+# theme export
+echo 'import { mode } from "@chakra-ui/theme-tools";
+export const globalStyles = {
+  colors: {
+    darkMode: {
+      50: "#f7f7f9",
+    },
+  },
+  styles: {
+    global: (props) => ({
+      body: {
+        overflowX: "hidden",
+        bg: mode("pinkMoment.500", "darkMode.500")(props),
+        letterSpacing: "-0.5px",
       },
-    },
+      input: {
+        color: "gray.700",
+      },
+    }),
   },
-  resolve: {
-    alias: {
-      '@': '/src',
-    },
-  },
-  server: {
-    port: 3000,
-  },
-});" > vite.config.ts
+};' > src/renderer/src/theme/styles.ts
 
-mkdir -p src/components
+# set font
+echo '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@700&display=swap");' > src/renderer/src/theme/styles.css
 
-echo "<!DOCTYPE html>
-<html lang=\"en\">
-  <head>
-    <meta charset=\"UTF-8\" />
-    <title>$1</title>
-  </head>
-  <body>
-    <div id=\"root\"></div>
-    <script type=\"module\" src=\"/src/index.tsx\"></script>
-  </body>
-</html>" > src/index.html
+# default text import
+echo "import { extendTheme, theme as base, ThemeConfig } from '@chakra-ui/react'
+import { globalStyles } from './styles'
+import { momentText } from './components/text'
 
-echo "import React from 'react';
-import ReactDOM from 'react-dom';
-import { ChakraProvider, Box, Heading } from '@chakra-ui/react';
-import * as io from 'socket.io-client';
-
-const socket = io('http://localhost:3000');
-
-socket.on('connect', () => {
-  console.log('Socket connected!');
-});
-
-socket.on('disconnect', () => {
-  console.log('Socket disconnected!');
-});
-
-socket.on('message', (data: any) => {
-  console.log('Received message from server:', data);
-});
-
-const App = () => (
-  <ChakraProvider>
-    <Box p=\"4\">
-      <Heading size=\"lg\" mb=\"4\">$1</Heading>
-      <p>This is my Electron app with ChakraUI and Socket.io!</p>
-    </Box>
-  </ChakraProvider>
-);
-
-ReactDOM.render(<App />, document.getElementById('root'));" > src/index.tsx
-
-#!/bin/bash
-
-# Create directory and move into it
-mkdir electron
-cd electron
-
-# Create main.ts file
-echo "import { app, BrowserWindow } from \"electron\";
-import * as path from \"path\";
-import installExtension, {
-  REACT_DEVELOPER_TOOLS,
-} from \"electron-devtools-installer\";
-
-function createWindow() {
-  const win = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      preload: path.join(__dirname, \"preload.js\"),
-    },
-  });
-
-  if (app.isPackaged) {
-    win.loadURL(\`file:///\${__dirname}/../index.html\`);
-  } else {
-    win.loadURL(\"http://localhost:3000/index.html\");
-
-    win.webContents.openDevTools();
-
-    require(\"electron-reload\")(__dirname, {
-      electron: path.join(
-        __dirname,
-        \"..\",
-        \"..\",
-        \"node_modules\",
-        \".bin\",
-        \"electron\"
-        + (process.platform === \"win32\" ? \".cmd\" : \"\")
-      ),
-      forceHardReset: true,
-      hardResetMethod: \"exit\",
-    });
-  }
+const config: ThemeConfig = {
+  initialColorMode: 'dark'
 }
 
-app.whenReady().then(() => {
-  installExtension(REACT_DEVELOPER_TOOLS)
-    .then((name) => console.log(\`Added Extension: \${name}\`))
-    .catch((err) => console.log(\"An error occurred: \", err));
-
-  createWindow();
-
-  app.on(\"activate\", () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+const customTheme = extendTheme({
+  config,
+  fonts: {
+    heading: \`Montserrat, \${base.fonts?.heading}\`,
+    body: \`Inter, \${base.fonts?.body}\`
+  },
+  components: {
+    Text: {
+      ...momentText
     }
-  });
+  },
+  ...globalStyles
+})
 
-  app.on(\"window-all-closed\", () => {
-    if (process.platform !== \"darwin\") {
-      app.quit();
-    }
-  });
-});" > main.ts
+export default customTheme" > src/renderer/src/theme/index.ts
 
-# Create preload.ts file
-touch preload.ts
+echo 'import { mode, StyleConfig, StyleFunctionProps } from "@chakra-ui/theme-tools";
 
-# Create tsconfig.json file
-echo "{
-  \"compilerOptions\": {
-    \"target\": \"es5\",
-    \"module\": \"commonjs\",
-    \"sourceMap\": true,
-    \"strict\": true,
-    \"outDir\": \"../build\",
-    \"rootDir\": \"../\",
-    \"noEmitOnError\": true,
-    \"typeRoots\": [\"node_modules/@types\"]
-  }
-}" > tsconfig.json
+export const momentText: StyleConfig = {
+  baseStyle: (props: StyleFunctionProps) => ({
+    color: mode("purpleMoment.800", "darkMode.200")(props),
+  }),
 
-cd ..
-
-jq '.scripts += {"start": "vite"}' package.json > tmp.json && mv tmp.json package.json
-
-jq '.scripts += {"build": "tsc && vite build"}' package.json > tmp.json && mv tmp.json package.json
-
-jq '.scripts += {"electron": "electron ."}' package.json > tmp.json && mv tmp.json package.json
-
-jq '.scripts += {"electron-build": "yarn build && tsc -p electron && electron-builder"}' package.json > tmp.json && mv tmp.json package.json
-
-source "$MAIN_SCRIPT_DIR/options/gitignore.sh"
+  variants: {
+    navLinks: (props: StyleFunctionProps) => ({
+      color: mode("purpleMoment.900", "darkMode.100")(props),
+      marginLeft: "5px",
+      fontWeight: "800",
+    }),
+    navHeader: (props: StyleFunctionProps) => ({
+      color: mode("purpleMoment.800", "darkMode.200")(props),
+      fontWeight: "900",
+      fontSize: "34px",
+      _focus: { boxShadow: "none" },
+    }),
+  },
+};' > src/renderer/src/theme/components/text.ts
