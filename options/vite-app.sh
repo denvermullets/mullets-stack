@@ -22,3 +22,38 @@ npm pkg set scripts.test="tsc -p ./tsconfig.json"
 yarn husky add .husky/pre-commit "yarn test"
 
 source "$MAIN_SCRIPT_DIR/options/gitignore.sh"
+
+# create prettierrc file
+touch .prettierrc
+cat > .prettierrc << EOL
+{
+  "trailingComma": "es5",
+  "tabWidth": 2,
+  "semi": true,
+  "singleQuote": false,
+  "printWidth": 100
+}
+EOL
+
+yarn add @chakra-ui/react @emotion/react @emotion/styled framer-motion
+
+cd src
+
+cat > main.tsx << EOL
+import React from "react";
+import { ChakraProvider } from "@chakra-ui/react";
+import ReactDOM from "react-dom/client";
+import App from "./App.tsx";
+import customTheme from "./theme";
+
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+  <React.StrictMode>
+    <ChakraProvider theme={customTheme}>
+      <App />
+    </ChakraProvider>
+  </React.StrictMode>
+);
+
+EOL
+
+source "$MAIN_SCRIPT_DIR/options/chakra-styles.sh"
