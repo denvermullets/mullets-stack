@@ -67,7 +67,8 @@ case $selected_option in
   1)
     # React with Chakra UI
     echo "Creating React with Chakra UI..."
-    # Insert command for creating a React app with Chakra UI here
+    read -p "Enter project name: " project_name
+    source "$MAIN_SCRIPT_DIR/options/vite-app.sh" "$project_name"
     ;;
   2)
     # NodeJS API
