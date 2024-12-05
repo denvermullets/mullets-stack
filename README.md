@@ -5,7 +5,7 @@ This is a bash script to quickly setup a monorepo for quick ideation. Gives opti
 
 - React w/Tailwind, NodeJS, Express, Knex, and Postgres
 - React w/Chakra UI, NodeJS, Express, Knex, and Postgres
-- React with Chakra UI (not completed yet but you can just use Vite w/a template)
+- React with Chakra UI
 - NodeJS API, with Express, Knex, and Postgres
 - Electron app with Chakra UI
 
