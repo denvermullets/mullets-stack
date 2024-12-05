@@ -11,7 +11,13 @@ SCRIPT_DIR=$(dirname "$SCRIPT_FILE")
 export MAIN_SCRIPT_DIR="$SCRIPT_DIR"
 
 # Define options
-options=("React w/Chakra UI, NodeJS, Express, Knex, and Postgres" "React with Chakra UI" "NodeJS API, with Express, Knex, and Postgres" "Electron, Vite, and Chakra UI")
+options=(
+  "React w/Tailwindcss, NodeJS, Express, Knex, and Postgres"
+  "React w/Chakra UI, NodeJS, Express, Knex, and Postgres"
+  "React with Chakra UI"
+  "NodeJS API, with Express, Knex, and Postgres"
+  "Electron, Vite, and Chakra UI"
+  )
 
 # Initialize selected option
 selected_option=0
@@ -65,12 +71,18 @@ case $selected_option in
     source "$MAIN_SCRIPT_DIR/options/node-full-stack.sh" "$project_name" "chakra"
     ;;
   1)
+    # Full Stack option w/tailwindcss
+    echo "Creating your stack of choice..."
+    read -p "Enter project name: " project_name
+    source "$MAIN_SCRIPT_DIR/options/node-full-stack-tw.sh" "$project_name" "tailwind"
+    ;;
+  2)
     # React with Chakra UI
     echo "Creating React with Chakra UI..."
     read -p "Enter project name: " project_name
     source "$MAIN_SCRIPT_DIR/options/vite-app.sh" "$project_name"
     ;;
-  2)
+  3)
     # NodeJS API
     echo "Creating Node Server..."
     read -p "Enter project name: " project_name
@@ -80,7 +92,7 @@ case $selected_option in
 
     source "$MAIN_SCRIPT_DIR/options/node-api.sh"
     ;;
-  3)
+  4)
     # Electron app with Chakra UI
     echo "Creating Electron app with Chakra UI..."
     read -p "Enter project name: " project_name
