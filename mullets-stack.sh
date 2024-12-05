@@ -12,7 +12,7 @@ export MAIN_SCRIPT_DIR="$SCRIPT_DIR"
 
 # Define options
 options=(
-  "React w/Tailwindcss, NodeJS, Express, Knex, and Postgres"
+  "React w/Tailwind, NodeJS, Express, Knex, and Postgres"
   "React w/Chakra UI, NodeJS, Express, Knex, and Postgres"
   "React with Chakra UI"
   "NodeJS API, with Express, Knex, and Postgres"
@@ -65,16 +65,16 @@ tput cnorm
 # Execute selected option
 case $selected_option in
   0)
-    # Full Stack option w/ chakra
-    echo "Creating your stack of choice..."
-    read -p "Enter project name: " project_name
-    source "$MAIN_SCRIPT_DIR/options/node-full-stack.sh" "$project_name" "chakra"
-    ;;
-  1)
     # Full Stack option w/tailwindcss
     echo "Creating your stack of choice..."
     read -p "Enter project name: " project_name
     source "$MAIN_SCRIPT_DIR/options/node-full-stack-tw.sh" "$project_name" "tailwind"
+    ;;
+  1)
+    # Full Stack option w/ chakra
+    echo "Creating your stack of choice..."
+    read -p "Enter project name: " project_name
+    source "$MAIN_SCRIPT_DIR/options/node-full-stack.sh" "$project_name" "chakra"
     ;;
   2)
     # React with Chakra UI

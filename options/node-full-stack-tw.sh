@@ -11,6 +11,17 @@ mkdir "$project_name"
 cd "$project_name"
 git init
 
+# create prettierrc file
+touch .prettierrc
+cat > .prettierrc << EOL
+{
+  "trailingComma": "es5",
+  "tabWidth": 2,
+  "semi": true,
+  "singleQuote": false,
+  "printWidth": 100
+}
+EOL
 
 # create the frontend
 yarn create vite client --template react-ts
@@ -47,34 +58,35 @@ cd client
 
 source "$MAIN_SCRIPT_DIR/options/gitignore.sh"
 
-# install tailwind if argument provided
-# if [ $# -eq 2 ]; then
-#   second_arg=$2
-#   echo "Second argument provided: $second_arg"
-#   if [ "$second_arg" == "chakra" ]; then
+# tailwind installer
 yarn add tailwindcss postcss autoprefixer -D
 npx tailwindcss init -p
 
-cd src
-#     cat > main.tsx << EOL
-# import React from 'react'
-# import ReactDOM from 'react-dom/client'
-# import App from './App'
-# import './index.css'
-# import { ChakraProvider } from '@chakra-ui/react'
+# adding the tailwind configs that need to go in
+cat > tailwind.config.js << EOL
+  /** @type {import('tailwindcss').Config} */
+  export default {
+    content: [
+      "./index.html",
+      "./src/**/*.{js,ts,jsx,tsx}",
+    ],
+    theme: {
+      extend: {},
+    },
+    plugins: [],
+  }
+EOL
 
-# ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-#   <React.StrictMode>
-#     <ChakraProvider>
-#       <App />
-#     </ChakraProvider>
-#   </React.StrictMode>,
-# )
-# EOL
+cd src
+
+cat > index.css << EOL
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+EOL
 
 cd ..
-#   fi
-# fi
+
 
 # create vite.config.js in the client folder
 cat > vite.config.js << EOL
