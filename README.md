@@ -4,9 +4,11 @@
 This is a bash script to quickly setup a monorepo for quick ideation. Gives options for the following:
 
 - React w/Tailwind, NodeJS, Express, Knex, and Postgres
+- NodeJS API, with Express, Knex, and Postgres
+
+### !! these are deprecated or not guaranteed to work !!
 - React w/Chakra UI, NodeJS, Express, Knex, and Postgres
 - React with Chakra UI
-- NodeJS API, with Express, Knex, and Postgres
 - Electron app with Chakra UI
 
 This will install the latest (stable) versions of:

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo "📋 Creating .gitignore file..."
 cat > .gitignore <<EOL
 # dependencies
 /node_modules
@@ -37,3 +38,4 @@ dump.rdb
 
 /cypress/videos
 EOL
+echo "✅ .gitignore created with common exclusions"
